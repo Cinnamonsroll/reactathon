@@ -3,12 +3,11 @@ import { randomBytes } from 'node:crypto';
 import connectDB from "../../utils/mongodb"
 let handler = async (req, res) => {
     if (req.method === "POST") {
-        const { url, type, password } = req.body;
-        if (!url) res.status(200).json({ error: "No url provided" });
+        const { files, password } = req.body;
+        if (!files.length) res.status(200).json({ error: "No files" });
         const imageData = await image.create({
-            url,
             id: randomBytes(16).toString('hex'),
-            mimeType: type,
+            files,
             password
         })
         return res.status(200).json({

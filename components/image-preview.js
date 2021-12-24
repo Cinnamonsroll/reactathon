@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react"
 import { IoCloseCircleOutline } from "react-icons/io5"
-import { BsArrowLeft } from "react-icons/bs"
-import { BsArrowRight } from "react-icons/bs"
+import { BsArrowLeft, BsArrowRight } from "react-icons/bs"
+
 export default function ImagePreview({ sources, reset, files }) {
     const overlayRef = useRef(null);
     const [visible, setVisible] = useState(false);
@@ -21,10 +21,8 @@ export default function ImagePreview({ sources, reset, files }) {
     }
     return <>
         <div className="flex justify-center items-center gap-2">
-            {files.length > 1 && (<div className="text-gray-700 hover:text-white opacity-50 transition-all duration-200 ease rounded-full flex justify-center items-center circle hover:scale-90" style={{ width: "30px", height: "30px" }} onClick={
-               
+            {files.length > 1 && (<div className="text-gray-700 hover:text-white opacity-50 transition-all duration-200 ease rounded-full flex justify-center items-center circle hover:scale-90" style={{ width: "30px", height: "30px" }} onClick={() =>
                 setImageNumber(imageNumber === files.length - 1 ? 0 : imageNumber + 1)
-            
             }>
                 <BsArrowLeft size={20} />
             </div>)}
@@ -32,17 +30,12 @@ export default function ImagePreview({ sources, reset, files }) {
 
                 <div style={{ margin: "10px 0", background: `url(${sources[imageNumber]})` }} className="onAnimation ImagePreview" onClick={() => setVisible(true)}>
                 </div>
-                <IoCloseCircleOutline
-                    size={40}
-                    onClick={(e) => reset(true)}
-                    style={{
-                        position: "absolute",
-                        top: -15,
-                        right: -15,
-                        cursor: "pointer",
-                        color: "#ff1919"
-                    }}
-                />
+                <div className="getDanger" onClick={(e) => {
+                    reset(false, imageNumber)
+                    setImageNumber(0)
+                }}>
+                    <img src="https://img.icons8.com/material-outlined/15/ffffff/trash--v1.png" />
+                </div>
             </div>
             {files.length > 1 && (<div className="text-gray-700 hover:text-white opacity-50 transition-all duration-200 ease rounded-full flex justify-center items-center circle hover:scale-90" style={{ width: "30px", height: "30px" }} onClick={() =>
                 setImageNumber(imageNumber === 0 ? files.length - 1 : imageNumber - 1)
@@ -51,7 +44,7 @@ export default function ImagePreview({ sources, reset, files }) {
             </div>)}
             {visible && (
                 <div className="Overlay" ref={overlayRef} onClick={onOverlayClick}>
-                    <img src={source} width={1000} />
+                    <img src={sources[imageNumber]} />
                     <div className="CloseIcon" onClick={() => setVisible(false)}>
                         <IoCloseCircleOutline size={70} />
                     </div>

@@ -32,27 +32,36 @@ const View = ({ query }) => {
         return () => window.removeEventListener("keydown", handleKeyDown)
     })
     return <>
-        <Toaster />
-
-        <div className="page">
-            <div className="Container">
-                {!image ? "Loading..." : image.password && !canView ? <>
-
-                    <div className="InputContainer">
+        {image && (<>
+            <Toaster />
+            <div className="page">
+                <div className="Container">
+                    {!canView && image.password ? (<div className="InputContainer">
                         <div className="flex">
                             <label className="InputLabel" children="Password" htmlFor="password" />
                         </div>
                         <input id="passwordField" className="PasswordField" type="password"></input>
-                    </div>
-
-                </> : image.password && canView ? <img src={image.url} height={800} width={800} /> : <img src={image.url} height={800} width={800} />}
-                <button className="Button" style={{ margin: "10px 0" }} onClick={() => Router.push("/")}>
-                    <div className="Flex">
-                        <IoCloudUploadOutline size={35} />
-                    </div>
-                </button>
+                    </div>) : <>
+                        <div className="grid sm:grid-cols-3 gap-10 justify-center items-center lg:flex lg:justify-center lg:items-center md:items-center md:flex md:justify-center mb-20 mt-10 md:grid-cols-1 lg:grid-cols-1">
+                            {image.files.map((file, i) => {
+                                return <>
+                                    <div className="rounded shadow-2xl flex justify-center items-center flex-col-reverse">
+                                        <img className="" src={file.data}></img> 
+                                    </div>
+                                </>
+                            })}
+                        </div>
+                        <button className="Button" style={{ margin: "10px 0" }} onClick={() => Router.push("/")}>
+                            <div className="Flex">
+                                <IoCloudUploadOutline size={35} />
+                            </div>
+                        </button>
+                    </>}
+                </div>
             </div>
-        </div>
+
+        </>)}
+
     </>
 }
 View.getInitialProps = ({ query }) => {

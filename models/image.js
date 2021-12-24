@@ -1,8 +1,7 @@
 let mongoose = require('mongoose'), Schema = mongoose.Schema;
 const imageSchema = new Schema({
-    url: String,
+    files: Array,
     id: String,
-    mimeType: String,
     password: String,
 });
 mongoose.models = {}

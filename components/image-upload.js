@@ -81,8 +81,12 @@ export default function ImageUpload() {
             method: "post",
             url: "/api/upload",
             data: {
-                url: source,
-                type: file.type,
+                files: getFiles.map((file, i) => {
+                    return {
+                        type: file.type,
+                        data: getSources[i]
+                    }
+                }),
                 password: document.getElementById("passwordField").value
             }
         }).then((response) => {
@@ -101,21 +105,26 @@ export default function ImageUpload() {
                 onDragLeave={handleDragLeave}
                 onClick={handleClick}
                 ref={imageUploadRef}
-                onDrop={(e) => {
+                onDrop={async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowBorder(false);
-                    const { files } = e.dataTransfer;
-                    const file = files.item(0);
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            const dataURL = reader.result;
-                            setSource(dataURL)
-                            setFile(file)
-                        };
-                        reader.readAsDataURL(file);
+                    const { files } = e.dataTransfer, sources = [];
+                    if (files && files.length) {
+                        const fileToBase64 = async (file) =>
+                            new Promise((resolve, reject) => {
+                                const reader = new FileReader()
+                                reader.readAsDataURL(file)
+                                reader.onload = () => resolve(reader.result)
+                                reader.onerror = (e) => reject(e)
+                            })
+                        for (const file of files) {
+                            const source = await fileToBase64(file)
+                            sources.push(source)
+                        }
                     }
+                    setFiles([...files, ...getFiles])
+                    setSources([...sources, ...getSources])
                 }}
             >
                 <div>
