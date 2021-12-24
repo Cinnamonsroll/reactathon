@@ -1,21 +1,26 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import ImagePreview from "./image-preview.js"
-import { IoCloudUploadOutline } from "react-icons/io5"
+import { IoCloudUploadOutline, IoEllipseSharp } from "react-icons/io5"
 import toast, { Toaster } from 'react-hot-toast';
 import Router from 'next/router'
 import axios from "axios"
 export default function ImageUpload() {
     const [showBorder, setShowBorder] = useState(false);
-    const [file, setFile] = useState();
-    const [source, setSource] = useState("");
+    const [getFiles, setFiles] = useState([]);
+    const [getSources, setSources] = useState([]);
     const [loading, setLoading] = useState(false)
     const fileInputRef = useRef(null);
     const imageUploadRef = useRef(null);
-    const reset = () => {
-        setFile(undefined);
-        setSource("")
+    const reset = (all, index) => {
+        if (all) {
+            setFiles([]);
+            setSources([])
+        } else {
+            setFiles(getFiles.filter((file, i) => i !== index))
+            setSources(getSources.filter((source, i) => i !== index))
+        }
     }
-    const isDisabled = () => loading || !file
+    const isDisabled = () => loading || !getFiles.length
     const handleClick = (e) => {
         if (e.target === imageUploadRef.current) {
             fileInputRef.current?.click();
@@ -31,23 +36,38 @@ export default function ImageUpload() {
         e.preventDefault();
         setShowBorder(false);
     }
-    const handleFileChange = (e) => {
-        const { files } = e.target;
+    const handleFileChange = async (e) => {
+        const { files } = e.target, sources = []
         if (files && files.length) {
-            const file = files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const dataURL = reader.result;
-                    setSource(dataURL)
-                    setFile(file)
-                };
-                reader.readAsDataURL(file);
+            const fileToBase64 = async (file) =>
+                new Promise((resolve, reject) => {
+                    const reader = new FileReader()
+                    reader.readAsDataURL(file)
+                    reader.onload = () => resolve(reader.result)
+                    reader.onerror = (e) => reject(e)
+                })
+            for (const file of files) {
+                const source = await fileToBase64(file)
+                sources.push(source)
             }
         }
+        setFiles([...files, ...getFiles])
+        setSources([...sources, ...getSources])
     }
     const uploadImage = async () => {
-        if ((file.size / 1024 / 1024) > 4) return toast.error("File too large", {
+        if (getFiles.length > 5) {
+            reset(true)
+            return toast.error("Exceeded file limit", {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        }
+        if (getFiles.reduce((acc, a) => acc += a.size / 1024 / 1024, 0) > 4) return toast.error("File too large", {
             position: "top-right",
             autoClose: 2000,
             hideProgressBar: false,
@@ -101,9 +121,9 @@ export default function ImageUpload() {
                 <div>
                     <label htmlFor="file" className="Label" children="Upload image" onClick={(e) => e.preventDefault()}></label>
                     <p className="Text" children="Click to upload a file or drag the image here"></p>
-                    <input id="file" className="Input" type="file" accept="image/jpeg, image/gif, image/png, image/jpg" ref={fileInputRef} onChange={handleFileChange} onClick={(e) => e.target.value = null} />
+                    <input multiple id="file" className="Input" type="file" accept="image/jpeg, image/gif, image/png, image/jpg" ref={fileInputRef} onChange={handleFileChange} onClick={(e) => e.target.value = null} />
                 </div>
-                {source && <ImagePreview source={source} reset={reset} />}
+                {getSources.length > 0 && <ImagePreview files={getFiles} sources={getSources} reset={reset} />}
             </div>
             {!isDisabled() && <>
                 <div style={{ marginTop: "10px" }} className="InputContainer">

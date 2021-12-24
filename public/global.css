@@ -15,7 +15,6 @@ html {
   width: 60vw;
 }
 
-
 .ImageContainer {
   width: 100%;
   background-color: #fff;
@@ -127,8 +126,7 @@ html {
   margin-bottom: 10px;
 }
 
-
-.InputContainer{
+.InputContainer {
   background-color: #fff;
   border: none;
   outline: none;
@@ -138,12 +136,12 @@ html {
   width: 100%;
 }
 
-.InputLabel{
+.InputLabel {
   color: #b37d61;
   font-size: 12px;
 }
 
-.PasswordField{
+.PasswordField {
   @apply text-mainText;
   outline: none;
   border: none;
@@ -151,4 +149,13 @@ html {
   font-family: "DM Sans";
   font-size: 16px;
   padding: 0;
+}
+
+.circle {
+  background: rgba(0, 0, 0, 0.261);
+}
+
+.onAnimation {
+  transition: 1s;
+  top: 0;
 }
